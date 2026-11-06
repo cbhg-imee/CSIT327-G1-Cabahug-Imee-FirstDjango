@@ -53,12 +53,13 @@ templates/
 
 ```bash
 # 1. Clone and enter the project
-git clone <repository-url>
-cd cabahug_campusconnect
+git clone https://github.com/cbhg-imee/CSIT327-G1-Cabahug-Imee-FirstDjango.git
+cd CSIT327-G1-Cabahug-Imee-FirstDjango
 
 # 2. Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate          # Windows: .venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate             # Windows:
+source .venv/bin/activate          # macOS/Linux
 
 # 3. Install dependencies
 pip install django
@@ -73,7 +74,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Open <http://127.0.0.1:8000/> in browser.
+Then open <http://127.0.0.1:8000/> in browser.
 
 | URL | Description |
 |---|---|
