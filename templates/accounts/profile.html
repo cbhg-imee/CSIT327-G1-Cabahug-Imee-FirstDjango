@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}CampusConnect - My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center g-4">
+    
+    <div class="col-lg-4">
+        <div class="panel panel-screws h-100">
+            <h2 class="panel-title"><span class="led led-green"></span>Operator Status</h2>
+
+            <div class="panel-recessed text-center mb-4">
+                <span class="readout-label">Username</span>
+                <span class="lcd lcd-blue">{{ object.username }}</span>
+            </div>
+
+            <div class="spec-row">
+                <span class="spec-key">Role</span>
+                <span class="lcd lcd-sm">{{ object.get_role_display }}</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-key">Status</span>
+                <span class="d-flex align-items-center gap-2">
+                    <span class="led led-sm {% if object.is_active %}led-green{% else %}led-red{% endif %}"></span>
+                    <span class="lcd lcd-sm {% if not object.is_active %}lcd-red{% endif %}">{% if object.is_active %}Active{% else %}Offline{% endif %}</span>
+                </span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-key">Joined</span>
+                <span class="lcd lcd-sm lcd-amber">{{ object.date_joined|date:"Y-m-d" }}</span>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="col-lg-7">
+        <div class="panel panel-screws">
+            <h2 class="panel-title"><span class="led led-amber"></span>Edit Profile</h2>
+            <p class="panel-subtitle">Update your personal details</p>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% include "includes/form_errors.html" %}
+
+                <div class="row">
+                    <div class="col-sm-6">{% include "includes/form_field.html" with field=form.first_name %}</div>
+                    <div class="col-sm-6">{% include "includes/form_field.html" with field=form.last_name %}</div>
+                </div>
+                {% include "includes/form_field.html" with field=form.email %}
+                {% include "includes/form_field.html" with field=form.course %}
+
+                <div class="d-flex flex-wrap gap-3 mt-2">
+                    <button type="submit" class="btn btn-signal-green flex-grow-1">Save Changes</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-signal-red">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

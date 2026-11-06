@@ -1,2 +1,28 @@
 {% extends "base.html" %}
-{% block content %}<h2>Admin Panel</h2>{% endblock %}
+{% block title %}CampusConnect - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="panel panel-screws">
+    <h2 class="panel-title"><span class="led led-red"></span>Admin Panel</h2>
+    <p class="panel-subtitle">Registered members &bull; <span class="lcd lcd-sm lcd-blue">{{ members|length }}</span></p>
+
+    <div class="table-responsive">
+        <table class="table-panel">
+            <thead>
+                <tr><th>Username</th><th>Name</th><th>Role</th><th>Course</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+            {% for m in members %}
+                <tr>
+                    <td>{{ m.username }}</td>
+                    <td>{{ m.get_full_name|default:"—" }}</td>
+                    <td><span class="lcd lcd-sm">{{ m.get_role_display }}</span></td>
+                    <td>{{ m.course|default:"—" }}</td>
+                    <td><span class="led led-sm {% if m.is_active %}led-green{% else %}led-red{% endif %}"></span></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

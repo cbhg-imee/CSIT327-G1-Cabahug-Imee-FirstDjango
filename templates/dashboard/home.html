@@ -1,15 +1,109 @@
 {% extends "base.html" %}
- 
+{% block title %}CampusConnect - Dashboard{% endblock %}
+
 {% block content %}
-<h2>Welcome, {{ user.first_name|default:user.username }}!</h2>
-<ul>
-  <li>Role: {{ user.get_role_display }}</li>
-  <li>Course: {{ user.course|default:"Not set" }}</li>
-  <li>Members: {{ member_count }}</li>
-  <li>Last login: {{ user.last_login|date:"M d, Y" }}</li>
-</ul>
-{% if is_admin %}
-  <a href="{% url 'admin_panel' %}">Open admin panel</a>
-{% endif %}
+<div class="panel panel-screws mb-4">
+    <h2 class="panel-title mb-2"><span class="led"></span>Welcome, {{ user.first_name|default:user.username }}!</h2>
+    <p class="panel-subtitle mb-0" style="margin-top:0">System online &bull; all channels nominal</p>
+</div>
+
+<!-- Readouts -->
+<div class="row g-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="panel text-center h-100">
+            <span class="readout-label">Members</span>
+            <span class="lcd lcd-lg lcd-blue">{{ member_count|stringformat:"03d" }}</span>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="panel text-center h-100">
+            <span class="readout-label">Role</span>
+            <span class="lcd">{{ user.get_role_display }}</span>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="panel text-center h-100">
+            <span class="readout-label">Course</span>
+            <span class="lcd lcd-amber">{{ user.course|default:"Not set" }}</span>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="panel text-center h-100">
+            <span class="readout-label">Last Login</span>
+            <span class="lcd lcd-sm">{{ user.last_login|date:"M d, Y" }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-0">
+    <!-- Profile completeness gauge -->
+    <div class="col-lg-7">
+        <div class="panel panel-screws h-100">
+            <h2 class="panel-title">
+                <span class="led {% if profile_complete %}led-green{% else %}led-amber{% endif %}"></span>
+                Profile Completeness
+                <span class="lcd lcd-sm ms-auto {% if not profile_complete %}lcd-amber{% endif %}">{{ completeness }}%</span>
+            </h2>
+
+            <div class="segments mb-4 {% if not profile_complete %}is-pending{% endif %}"
+                 role="progressbar" aria-valuenow="{{ completeness }}" aria-valuemin="0" aria-valuemax="100"
+                 aria-label="Profile completeness">
+                {% for item in checklist %}<div class="segment {% if item.done %}on{% endif %}"></div>{% endfor %}
+            </div>
+
+            {% for item in checklist %}
+            <div class="spec-row">
+                <span class="spec-key">{{ item.label }}</span>
+                <span class="d-flex align-items-center gap-2">
+                    <span class="led led-sm {% if item.done %}led-green{% else %}led-amber{% endif %}"></span>
+                    <span class="lcd lcd-sm {% if not item.done %}lcd-amber{% endif %}">{% if item.done %}OK{% else %}Pending{% endif %}</span>
+                </span>
+            </div>
+            {% endfor %}
+
+            {% if not profile_complete %}
+            <a href="{% url 'profile' user.pk %}" class="btn btn-signal-amber w-100 mt-3">Complete Profile</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- System status + quick actions -->
+    <div class="col-lg-5">
+        <div class="panel panel-screws mb-4">
+            <h2 class="panel-title"><span class="led led-blue"></span>System Status</h2>
+            <div class="spec-row">
+                <span class="spec-key">Account</span>
+                <span class="d-flex align-items-center gap-2">
+                    <span class="led led-sm {% if user.is_active %}led-green{% else %}led-red{% endif %}"></span>
+                    <span class="lcd lcd-sm">{% if user.is_active %}Active{% else %}Offline{% endif %}</span>
+                </span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-key">Session</span>
+                <span class="d-flex align-items-center gap-2">
+                    <span class="led led-sm led-blue"></span>
+                    <span class="lcd lcd-sm lcd-blue">Live</span>
+                </span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-key">Access Level</span>
+                <span class="lcd lcd-sm">{{ user.get_role_display }}</span>
+            </div>
+            <div class="spec-row">
+                <span class="spec-key">Joined</span>
+                <span class="lcd lcd-sm lcd-amber">{{ user.date_joined|date:"Y-m-d" }}</span>
+            </div>
+        </div>
+
+        <div class="panel panel-screws">
+            <h2 class="panel-title"><span class="led led-green"></span>Quick Actions</h2>
+            <div class="d-grid gap-3">
+                <a href="{% url 'profile' user.pk %}" class="btn btn-signal-blue">Edit Profile</a>
+                {% if is_admin %}
+                    <a href="{% url 'admin_panel' %}" class="btn btn-signal-amber">Open Admin Panel</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
- 

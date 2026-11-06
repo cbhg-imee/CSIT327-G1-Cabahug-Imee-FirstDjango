@@ -1,20 +1,475 @@
 <!DOCTYPE html>
-<html>
-<head><title>{% block title %}CampusConnect{% endblock %}</title></head>
+<html lang="en" data-theme="light" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}CampusConnect{% endblock %}</title>
+
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script>
+        (function () {
+            var t = null;
+            try { t = localStorage.getItem('cc-theme'); } catch (e) {}
+            if (t !== 'dark' && t !== 'light') {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', t);
+            document.documentElement.setAttribute('data-bs-theme', t);
+        })();
+    </script>
+
+    <style>
+        /* ==========================================================
+           TACTILE NEOMORPHIC INDUSTRIAL CONTROL PANEL
+           Light + Dark themes (switch in the navbar)
+           ========================================================== */
+        :root, [data-theme="light"] {
+            /* Base neutrals */
+            --panel: #e0e5ec;        /* Industrial Gray */
+            --ink: #2d3748;          /* Slate */
+            --ink-soft: #4a5568;     /* secondary text  (5.9:1) */
+            --ink-faint: #5b6678;    /* placeholders    (4.6:1) */
+            --line: rgba(45,55,72,.10);
+            --off-white: #f8fafc;
+            --shadow-dark: #c5c9ce;
+            --shadow-light: #ffffff;
+            --screw-hi: #f8fafc;
+            --screw-lo: #aab1bb;
+
+            /* Signal accents (LEDs, glows, borders) */
+            --signal-green: #10b981;  /* success / active */
+            --signal-amber: #f59e0b;  /* pending / field focus */
+            --signal-blue: #3b82f6;   /* live data / links / nav */
+            --signal-red: #ef4444;    /* error / delete / cancel */
+
+            /* Same hues tuned for readable TEXT on the panel (>= 4.5:1) */
+            --t-green: #065f46;
+            --t-blue: #1d4ed8;
+            --t-amber: #92400e;
+            --t-red: #b91c1c;
+        }
+        [data-theme="dark"] {
+            --panel: #2d3748;        /* Slate becomes the panel */
+            --ink: #f8fafc;          /* Off-White text */
+            --ink-soft: #cbd5e0;
+            --ink-faint: #a0aec0;
+            --line: rgba(248,250,252,.10);
+            --shadow-dark: #1e2532;
+            --shadow-light: #3d4a61;
+            --screw-hi: #5b6a85;
+            --screw-lo: #1e2532;
+
+            --t-green: #34d399;
+            --t-blue: #60a5fa;
+            --t-amber: #fbbf24;
+            --t-red: #fca5a5;
+        }
+        :root {
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-hw: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+            --raised: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            --raised-sm: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            --inset: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            --inset-deep: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+        }
+
+        html, body { min-height: 100%; }
+        body {
+            background: var(--panel);
+            color: var(--ink);
+            font-family: var(--font-hw);
+            font-size: 0.92rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color .3s ease, color .3s ease;
+        }
+        main { flex: 1 0 auto; }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-hw);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink);
+        }
+        a { color: var(--t-blue); text-decoration: none; transition: color .2s, text-shadow .2s; }
+        a:hover { color: var(--t-blue); text-shadow: 0 0 10px var(--signal-blue); }
+
+        /* ---------- Panels ---------- */
+        .panel {
+            background: var(--panel);
+            border-radius: 22px;
+            padding: 2rem;
+            box-shadow: var(--raised);
+            transition: background-color .3s ease, box-shadow .3s ease;
+        }
+        .panel-recessed {
+            background: var(--panel);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--inset-deep);
+        }
+        .panel-title {
+            display: flex; align-items: center; gap: .75rem;
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--line);
+        }
+        .panel-subtitle {
+            font-size: .72rem; text-transform: uppercase; letter-spacing: .15em;
+            color: var(--ink-soft); margin-top: -1rem; margin-bottom: 1.5rem;
+        }
+        /* Screws on the corners of the control panel */
+        .panel-screws { position: relative; }
+        .panel-screws::before, .panel-screws::after {
+            content: ""; position: absolute; top: 14px; width: 9px; height: 9px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--screw-hi), var(--screw-lo));
+            box-shadow: 1px 1px 2px var(--shadow-dark), inset 0 0 0 1px var(--line);
+        }
+        .panel-screws::before { left: 14px; }
+        .panel-screws::after { right: 14px; }
+
+        /* ---------- Navbar ---------- */
+        .navbar-panel {
+            background: var(--panel);
+            box-shadow: 0 8px 16px var(--shadow-dark), 0 -2px 0 var(--shadow-light) inset;
+            padding: .85rem 0;
+            margin-bottom: 2.25rem;
+            transition: background-color .3s ease;
+        }
+        .navbar-brand {
+            font-family: var(--font-hw); font-weight: 700; color: var(--ink) !important;
+            text-transform: uppercase; letter-spacing: .12em; display: flex; align-items: center; gap: .65rem;
+        }
+        .navbar-brand .brand-plate {
+            background: var(--panel); box-shadow: var(--raised-sm); border-radius: 10px; padding: .3rem .7rem;
+        }
+        .nav-link {
+            font-family: var(--font-hw); text-transform: uppercase; letter-spacing: .1em; font-size: .78rem;
+            color: var(--t-blue) !important; border-radius: 10px; padding: .55rem 1rem !important;
+            margin: 0 .25rem; transition: box-shadow .2s var(--spring), transform .15s var(--spring);
+        }
+        .nav-link:hover { box-shadow: var(--raised-sm); }
+        .nav-link:active, .nav-link.active { box-shadow: var(--inset); transform: translateY(1px); }
+        .navbar-toggler {
+            border: 0; background: var(--panel); box-shadow: var(--raised-sm); border-radius: 10px; padding: .45rem .7rem;
+        }
+        .navbar-toggler:active { box-shadow: var(--inset); transform: translateY(1px); }
+        .navbar-toggler:focus { box-shadow: var(--inset), 0 0 0 2px var(--signal-amber); }
+        .navbar-toggler-icon { filter: invert(20%) sepia(10%) saturate(1500%) hue-rotate(180deg); }
+        [data-theme="dark"] .navbar-toggler-icon { filter: invert(1) brightness(1.1); }
+
+        /* ---------- Dark-mode rocker switch ---------- */
+        .theme-switch {
+            display: inline-flex; align-items: center; gap: .65rem; background: transparent; border: 0;
+            padding: .4rem .5rem; cursor: pointer; font-family: var(--font-hw); font-size: .7rem; font-weight: 700;
+            letter-spacing: .15em; text-transform: uppercase; color: var(--ink-soft);
+        }
+        .theme-switch-track {
+            position: relative; width: 54px; height: 28px; border-radius: 14px; background: var(--panel);
+            box-shadow: var(--inset); transition: box-shadow .3s ease;
+        }
+        .theme-switch-knob {
+            position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+            background: var(--panel); display: grid; place-items: center;
+            box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+            transition: transform .4s var(--spring);
+        }
+        .theme-switch-knob::after {
+            content: ""; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--signal-amber); box-shadow: 0 0 10px var(--signal-amber);
+            transition: background-color .3s, box-shadow .3s;
+        }
+        .theme-switch[aria-checked="true"] .theme-switch-knob { transform: translateX(26px); }
+        .theme-switch[aria-checked="true"] .theme-switch-knob::after {
+            background: var(--signal-blue); box-shadow: 0 0 10px var(--signal-blue);
+        }
+        .theme-switch:active .theme-switch-knob { transform: translateY(1px); }
+        .theme-switch[aria-checked="true"]:active .theme-switch-knob { transform: translateX(26px) translateY(1px); }
+        .theme-switch:focus-visible { outline: 0; }
+        .theme-switch:focus-visible .theme-switch-track { box-shadow: var(--inset), 0 0 0 3px rgba(245,158,11,.6); }
+
+        /* ---------- Tactile buttons ---------- */
+        .btn {
+            font-family: var(--font-hw); font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+            font-size: .8rem; border: 0; border-radius: 12px; padding: .8rem 1.6rem;
+            background: var(--panel); color: var(--ink);
+            box-shadow: var(--raised);
+            transition: box-shadow .25s var(--spring), transform .25s var(--spring), color .2s;
+        }
+        .btn:hover { background: var(--panel); color: var(--ink); box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); }
+        .btn:active, .btn.active, .btn:first-child:active, :not(.btn-check) + .btn:active {
+            background: var(--panel); color: var(--ink);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            transform: translateY(1px);
+        }
+        .btn:focus-visible { outline: 0; box-shadow: var(--raised), 0 0 0 3px rgba(245,158,11,.6); }
+        /* Each button carries a signal LED; the label stays high-contrast ink */
+        .btn::before {
+            content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+            margin-right: .65rem; vertical-align: 1px;
+            background: var(--led, var(--signal-blue)); box-shadow: 0 0 10px var(--led, var(--signal-blue));
+        }
+        .btn-signal-green { --led: var(--signal-green); }
+        .btn-signal-blue  { --led: var(--signal-blue); }
+        .btn-signal-amber { --led: var(--signal-amber); }
+        .btn-signal-red   { --led: var(--signal-red); }
+
+        /* ---------- Form controls (recessed inputs) ---------- */
+        .form-label {
+            font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .15em;
+            color: var(--ink-soft); margin-bottom: .55rem; padding-left: .25rem;
+        }
+        .form-control {
+            font-family: var(--font-hw); background: var(--panel); color: var(--ink);
+            border: 2px solid transparent; border-radius: 12px; padding: .8rem 1rem;
+            box-shadow: var(--inset);
+            transition: border-color .25s var(--spring), box-shadow .25s var(--spring), background-color .3s;
+        }
+        .form-control::placeholder { color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; opacity: 1; }
+        /* Warning Amber = form field focus */
+        .form-control:focus {
+            background: var(--panel); color: var(--ink); border-color: var(--signal-amber);
+            box-shadow: var(--inset), 0 0 14px rgba(245,158,11,.45);
+        }
+        /* Keep browser autofill from painting its own light-blue/yellow background */
+        .form-control:-webkit-autofill,
+        .form-control:-webkit-autofill:hover,
+        .form-control:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--ink);
+            caret-color: var(--ink);
+            transition: background-color 99999s ease-in-out 0s;
+        }
+        .field-help { font-size: .7rem; color: var(--ink-soft); padding-left: .25rem; margin-top: .45rem; }
+        .field-help ul { padding-left: 1.1rem; margin: 0; }
+        /* Priority Red = validation errors */
+        .field-error {
+            display: flex; align-items: center; gap: .5rem; font-size: .75rem; font-weight: 500;
+            color: var(--t-red); margin-top: .5rem; padding-left: .25rem;
+        }
+        .field-error::before {
+            content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none;
+            background: var(--signal-red); box-shadow: 0 0 10px var(--signal-red);
+        }
+        .has-error .form-control { border-color: var(--signal-red); box-shadow: var(--inset), 0 0 12px rgba(239,68,68,.35); }
+        .has-error .form-label { color: var(--t-red); }
+
+        /* ---------- LED indicators ---------- */
+        .led {
+            display: inline-block; width: 12px; height: 12px; border-radius: 50%; flex: none;
+            background: var(--signal-green); box-shadow: 0 0 12px var(--signal-green);
+            animation: led-pulse 2s ease-in-out infinite;
+        }
+        .led-green { background: var(--signal-green); box-shadow: 0 0 12px var(--signal-green); }
+        .led-amber { background: var(--signal-amber); box-shadow: 0 0 12px var(--signal-amber); }
+        .led-blue  { background: var(--signal-blue);  box-shadow: 0 0 12px var(--signal-blue); }
+        .led-red   { background: var(--signal-red);   box-shadow: 0 0 12px var(--signal-red); }
+        .led-sm { width: 9px; height: 9px; }
+        @keyframes led-pulse {
+            0%, 100% { opacity: 1; filter: brightness(1.15); }
+            50%      { opacity: .45; filter: brightness(.8); }
+        }
+
+        /* ---------- Segmented LCD / OLED readouts ---------- */
+        .lcd {
+            display: inline-block; font-family: var(--font-hw); font-weight: 700;
+            background:
+                repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px),
+                #1a202c;
+            color: var(--signal-green); text-shadow: 0 0 8px currentColor;
+            border-radius: 8px; padding: .3rem .8rem; letter-spacing: .18em; text-transform: uppercase;
+            box-shadow: inset 3px 3px 7px rgba(0,0,0,.6), inset -2px -2px 5px rgba(255,255,255,.08), 0 0 0 3px var(--panel), 3px 3px 8px var(--shadow-dark);
+        }
+        .lcd-amber { color: var(--signal-amber); }
+        .lcd-blue  { color: #60a5fa; }
+        .lcd-red   { color: #f87171; }
+        .lcd-lg { font-size: 2.2rem; padding: .5rem 1.25rem; }
+        .lcd-sm { font-size: .72rem; padding: .2rem .65rem; letter-spacing: .12em; }
+
+        .readout-label {
+            display: block; font-size: .66rem; font-weight: 700; letter-spacing: .18em;
+            text-transform: uppercase; color: var(--ink-soft); margin-bottom: .6rem;
+        }
+
+        /* ---------- Segmented bar gauge ---------- */
+        .segments { display: flex; gap: .55rem; }
+        .segment {
+            flex: 1; height: 18px; border-radius: 6px; background: #1a202c;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,.65), inset -1px -1px 3px rgba(255,255,255,.06);
+            transition: background-color .4s ease, box-shadow .4s ease;
+        }
+        .segment.on { background: var(--signal-green); box-shadow: 0 0 12px var(--signal-green), inset 0 0 4px rgba(255,255,255,.35); }
+        .segments.is-pending .segment.on { background: var(--signal-amber); box-shadow: 0 0 12px var(--signal-amber), inset 0 0 4px rgba(255,255,255,.35); }
+
+        /* ---------- Alerts (Django messages as dismissible Bootstrap alerts) ---------- */
+        .alert {
+            font-family: var(--font-hw); font-size: .82rem; border: 0; border-radius: 14px;
+            background: var(--panel); color: var(--ink); padding: 1rem 3rem 1rem 3rem;
+            box-shadow: var(--raised); position: relative; margin-bottom: 1rem;
+        }
+        .alert::before {   /* status LED */
+            content: ""; position: absolute; left: 1.2rem; top: 50%; margin-top: -6px;
+            width: 12px; height: 12px; border-radius: 50%; animation: led-pulse 2s ease-in-out infinite;
+        }
+        .alert-success { border-left: 5px solid var(--signal-green); }
+        .alert-success::before { background: var(--signal-green); box-shadow: 0 0 12px var(--signal-green); }
+        .alert-danger  { border-left: 5px solid var(--signal-red); }
+        .alert-danger::before  { background: var(--signal-red); box-shadow: 0 0 12px var(--signal-red); }
+        .alert-warning { border-left: 5px solid var(--signal-amber); }
+        .alert-warning::before { background: var(--signal-amber); box-shadow: 0 0 12px var(--signal-amber); }
+        .alert-info    { border-left: 5px solid var(--signal-blue); }
+        .alert-info::before    { background: var(--signal-blue); box-shadow: 0 0 12px var(--signal-blue); }
+        .alert-secondary { border-left: 5px solid #94a3b8; }
+        .alert-secondary::before { background: #94a3b8; box-shadow: 0 0 12px #94a3b8; }
+        .alert .btn-close {
+            background-color: var(--panel); border-radius: 50%; padding: .55rem; opacity: 1;
+            top: 50%; transform: translateY(-50%); right: .9rem; box-shadow: var(--raised-sm);
+            transition: box-shadow .2s var(--spring), transform .2s var(--spring);
+        }
+        .alert .btn-close:active { box-shadow: var(--inset); transform: translateY(-50%) translateY(1px); }
+        .alert.fade { transition: opacity .3s ease, transform .3s var(--spring); }
+        .alert.fade:not(.show) { transform: scale(.97); }
+
+        /* ---------- Tables / data rows ---------- */
+        .table-panel { border-collapse: separate; border-spacing: 0 .6rem; width: 100%; color: var(--ink); }
+        .table-panel th {
+            font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; font-weight: 700;
+            color: var(--ink-soft); padding: 0 1rem .25rem; border: 0; background: transparent;
+        }
+        .table-panel td { padding: .85rem 1rem; background: var(--panel); color: var(--ink); border: 0; vertical-align: middle; box-shadow: var(--inset); }
+        .table-panel td:first-child { border-radius: 12px 0 0 12px; }
+        .table-panel td:last-child  { border-radius: 0 12px 12px 0; }
+
+        .spec-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .85rem 0; }
+        .spec-row + .spec-row { border-top: 2px solid var(--line); }
+        .spec-row .spec-key { font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+
+        /* ---------- Footer ---------- */
+        .footer-panel {
+            flex-shrink: 0; margin-top: 3rem; padding: 1.1rem 0; text-align: center;
+            font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-soft);
+            box-shadow: 0 -6px 12px var(--shadow-dark), 0 2px 0 var(--shadow-light) inset;
+        }
+
+        .link-signal { font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; }
+        .big-code { margin: 1.25rem 0 1.5rem; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .led, .alert::before { animation: none; }
+            .btn, .nav-link, .form-control, .theme-switch-knob, body, .panel { transition: none; }
+        }
+        @media (max-width: 575.98px) {
+            .panel { padding: 1.4rem; }
+            .lcd-lg { font-size: 1.7rem; }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
 <body>
-<nav>
-{% if user.is_authenticated %}
-Hi, {{ user.username }}!
-<form method="post" action="{% url 'logout' %}">
-{% csrf_token %}
-<button type="submit">Log Out</button>
-</form>
-{% else %}
-<a href="{% url 'login' %}">Log In</a>
-<a href="{% url 'signup' %}">Sign Up</a>
-{% endif %}
+
+<!-- Responsive top navigation bar -->
+<nav class="navbar navbar-expand-lg navbar-panel">
+    <div class="container">
+        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}">
+            <span class="led"></span>
+            <span class="brand-plate">CampusConnect</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                <li class="nav-item d-flex align-items-center me-lg-2">
+                    <button type="button" class="theme-switch" id="themeToggle" role="switch"
+                            aria-checked="false" aria-label="Toggle dark mode">
+                        <span class="theme-switch-text">Dark</span>
+                        <span class="theme-switch-track"><span class="theme-switch-knob"></span></span>
+                    </button>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' user.pk %}">Profile</a>
+                    </li>
+                    {% if user.role == 'ADMIN' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'admin_panel' %}active{% endif %}" href="{% url 'admin_panel' %}">Admin Panel</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item d-flex align-items-center ms-lg-3 my-2 my-lg-0">
+                        <span class="led led-sm me-2"></span>
+                        <span class="lcd lcd-sm">{{ user.username }}</span>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <form method="post" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-signal-red btn-sm">Log Out</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}" href="{% url 'signup' %}">Sign Up</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
 </nav>
-<main>{% block content %}{% endblock %}</main>
-<footer>{% block footer %}{% endblock %}</footer>
+
+<main class="container pb-4">
+    <!-- Django messages framework: dismissible Bootstrap alerts -->
+    {% if messages %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer-panel">
+    {% block footer %}Copyright by CIT-U{% endblock %}
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        var root = document.documentElement;
+        var toggle = document.getElementById('themeToggle');
+        function sync() { toggle.setAttribute('aria-checked', root.getAttribute('data-theme') === 'dark' ? 'true' : 'false'); }
+        sync();
+        toggle.addEventListener('click', function () {
+            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            root.setAttribute('data-bs-theme', next);
+            try { localStorage.setItem('cc-theme', next); } catch (e) {}
+            sync();
+        });
+    })();
+</script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

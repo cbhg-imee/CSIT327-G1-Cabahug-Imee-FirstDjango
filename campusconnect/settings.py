@@ -128,6 +128,22 @@ MAILERS = {
     },
 }
 
+# Authentication
 AUTH_USER_MODEL = 'accounts.CustomUser'
-LOGIN_REDIRECT_URL = 'dashboard'  
-LOGOUT_REDIRECT_URL = 'login'    
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+
+# Messages framework (django.contrib.messages is in INSTALLED_APPS, the
+# middleware and the context processor are configured above).
+# Map Django's message levels to Bootstrap 5 alert contextual classes so
+# `messages.error(...)` renders as `alert-danger`.
+from django.contrib.messages import constants as message_constants
+
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'secondary',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'danger',
+}

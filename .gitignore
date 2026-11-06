@@ -1,9 +1,30 @@
 # Python cache files
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
 
 # Local SQLite database
 db.sqlite3
+db.sqlite3-journal
 
-# Virtual environment
-.venv/
+# Sensitive environment files
+.env
+.env.*
+*.env
+secrets.*
+
+# Django / tooling
+*.log
+staticfiles/
+media/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

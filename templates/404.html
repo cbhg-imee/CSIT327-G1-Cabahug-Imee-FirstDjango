@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}CampusConnect - Not Found{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-6">
+        <div class="panel panel-screws text-center">
+            <h2 class="panel-title justify-content-center"><span class="led led-amber"></span>Signal Lost</h2>
+            <div class="big-code"><span class="lcd lcd-lg lcd-amber">404</span></div>
+            <p class="mb-1">We couldn't find the page you were looking for.</p>
+            <p class="panel-subtitle" style="margin-top:.5rem">No signal on this channel</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-signal-blue">Back to Dashboard</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-signal-green">Log In</a>
+                    <a href="{% url 'signup' %}" class="btn btn-signal-blue">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
